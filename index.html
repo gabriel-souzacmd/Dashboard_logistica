@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analítico de SLA e Logística</title>
+    
+    <!-- Carregando Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Carregando Chart.js para os gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Carregando Phosphor Icons para ícones profissionais -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Configurações customizadas do Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6', // Teal predominante para o tema logístico
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Importando fonte Inter */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        
+        /* Custom scrollbar for table container */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="bg-brand-500 text-white p-2 rounded-lg">
+                        <i class="ph ph-package text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 leading-none">Gabriel Analytics</h1>
+                        <span class="text-xs text-slate-500 font-medium">Dashboard de Performance e SLA</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="ph ph-bell text-xl"></i>
+                    </button>
+                    <div class="h-8 w-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center overflow-hidden">
+                        <img src="https://placehold.co/32x32/14b8a6/white?text=AD" alt="User" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Cabeçalho da Página -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Visão Geral da Operação</h2>
+                <p class="text-sm text-slate-500 mt-1">Acompanhamento em tempo real dos indicadores de logística.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <select class="bg-white border border-slate-300 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block p-2.5 shadow-sm">
+                    <option>Últimos 7 dias</option>
+                    <option>Últimos 30 dias</option>
+                    <option>Este Mês</option>
+                </select>
+                <button class="bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                    <i class="ph ph-download-simple"></i>
+                    Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+            <!-- KPI 1: Total de Entregas -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="ph ph-truck text-6xl text-brand-600"></i>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total de Entregas</h3>
+                    <div class="bg-blue-50 text-blue-600 p-2 rounded-lg">
+                        <i class="ph ph-trend-up text-lg"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-slate-900">12.450</span>
+                </div>
+                <p class="text-sm text-emerald-600 font-medium mt-2 flex items-center gap-1">
+                    <i class="ph ph-arrow-up-right"></i>
+                    +8.2% <span class="text-slate-400 font-normal">vs período anterior</span>
+                </p>
+            </div>
+
+            <!-- KPI 2: Taxa de SLA / No Prazo -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="ph ph-check-circle text-6xl text-emerald-600"></i>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Taxa de SLA (No Prazo)</h3>
+                    <div class="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
+                        <i class="ph ph-target text-lg"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-slate-900">94.8%</span>
+                </div>
+                <p class="text-sm text-emerald-600 font-medium mt-2 flex items-center gap-1">
+                    <i class="ph ph-arrow-up-right"></i>
+                    +1.5% <span class="text-slate-400 font-normal">vs período anterior</span>
+                </p>
+            </div>
+
+            <!-- KPI 3: Tempo Médio de Entrega -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="ph ph-timer text-6xl text-amber-500"></i>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Tempo Médio (TME)</h3>
+                    <div class="bg-amber-50 text-amber-600 p-2 rounded-lg">
+                        <i class="ph ph-clock text-lg"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-slate-900">2.4</span>
+                    <span class="text-slate-500 font-medium">Dias</span>
+                </div>
+                <p class="text-sm text-rose-500 font-medium mt-2 flex items-center gap-1">
+                    <i class="ph ph-arrow-down-right"></i>
+                    -0.3 dias <span class="text-slate-400 font-normal">vs período anterior</span>
+                </p>
+            </div>
+
+            <!-- KPI 4: Pedidos Pendentes / Atrasados -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="ph ph-warning-circle text-6xl text-rose-500"></i>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Pedidos em Atraso</h3>
+                    <div class="bg-rose-50 text-rose-600 p-2 rounded-lg">
+                        <i class="ph ph-warning text-lg"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-slate-900">142</span>
+                </div>
+                <p class="text-sm text-rose-500 font-medium mt-2 flex items-center gap-1">
+                    <i class="ph ph-arrow-up-right"></i>
+                    +12 <span class="text-slate-400 font-normal">vs período anterior</span>
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Gráfico: Evolução do SLA -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Evolução do SLA</h3>
+                        <p class="text-sm text-slate-500">Aderência ao prazo nos últimos 7 dias (%)</p>
+                    </div>
+                </div>
+                <div class="relative h-72 w-full">
+                    <canvas id="slaChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico: Entregas por Região -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Volume por Região</h3>
+                        <p class="text-sm text-slate-500">Total de entregas ativas/concluídas por destino</p>
+                    </div>
+                </div>
+                <div class="relative h-72 w-full">
+                    <canvas id="regionChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Table Section -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+            <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Últimas Operações</h3>
+                    <p class="text-sm text-slate-500">Status atualizado das remessas recentes</p>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="ph ph-magnifying-glass text-slate-400"></i>
+                    </div>
+                    <input type="text" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full pl-10 p-2" placeholder="Buscar pedido...">
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-sm text-left text-slate-500">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 font-semibold">ID do Pedido</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Destino</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Tempo (Dias)</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Status</th>
+                            <th scope="col" class="px-6 py-4 font-semibold text-right">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-200">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Paginação simulada -->
+            <div class="p-4 border-t border-slate-200 flex items-center justify-between bg-slate-50">
+                <span class="text-sm text-slate-500">Mostrando <span class="font-semibold text-slate-900">1-5</span> de <span class="font-semibold text-slate-900">12.450</span></span>
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                    <button type="button" class="px-3 py-1.5 text-sm font-medium text-slate-900 bg-white border border-slate-200 rounded-l-lg hover:bg-slate-100 hover:text-brand-600 focus:z-10 focus:ring-2 focus:ring-brand-500">
+                        Anterior
+                    </button>
+                    <button type="button" class="px-3 py-1.5 text-sm font-medium text-slate-900 bg-white border border-slate-200 rounded-r-lg hover:bg-slate-100 hover:text-brand-600 focus:z-10 focus:ring-2 focus:ring-brand-500">
+                        Próxima
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Dados simulados para a tabela
+        const operationsData = [
+            { id: 'BR-LOG-00921', destination: 'São Paulo, SP', time: 1, status: 'Entregue' },
+            { id: 'BR-LOG-00922', destination: 'Belo Horizonte, MG', time: 2, status: 'Em Trânsito' },
+            { id: 'BR-LOG-00923', destination: 'Rio de Janeiro, RJ', time: 6, status: 'Atrasado' },
+            { id: 'BR-LOG-00924', destination: 'Curitiba, PR', time: 3, status: 'Em Trânsito' },
+            { id: 'BR-LOG-00925', destination: 'Salvador, BA', time: 4, status: 'Entregue' },
+            { id: 'BR-LOG-00926', destination: 'Fortaleza, CE', time: 8, status: 'Atrasado' },
+            { id: 'BR-LOG-00927', destination: 'Campinas, SP', time: 1, status: 'Entregue' },
+        ];
+
+        // Função para determinar o estilo do badge de status
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'Entregue':
+                    return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                Entregue
+                            </span>`;
+                case 'Em Trânsito':
+                    return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                                Em Trânsito
+                            </span>`;
+                case 'Atrasado':
+                    return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                Atrasado
+                            </span>`;
+                default:
+                    return `<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">${status}</span>`;
+            }
+        }
+
+        // Popular a tabela
+        function populateTable() {
+            const tbody = document.getElementById('tableBody');
+            let html = '';
+            
+            // Limitando a 5 itens para visualização inicial
+            operationsData.slice(0, 5).forEach(op => {
+                html += `
+                    <tr class="bg-white hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-slate-900">
+                            ${op.id}
+                        </td>
+                        <td class="px-6 py-4 flex items-center gap-2">
+                            <i class="ph ph-map-pin text-slate-400"></i>
+                            ${op.destination}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${op.time} ${op.time === 1 ? 'dia' : 'dias'}
+                        </td>
+                        <td class="px-6 py-4">
+                            ${getStatusBadge(op.status)}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors">
+                                Detalhes
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Configuração Comum do Chart.js para responsividade e visual moderno
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.scale.grid.color = '#e2e8f0';
+
+        // Inicializar Gráfico de Evolução do SLA (Line Chart)
+        function initSLAChart() {
+            const ctx = document.getElementById('slaChart').getContext('2d');
+            
+            // Criando gradiente para a linha
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(20, 184, 166, 0.5)'); // brand-500 com opacidade
+            gradient.addColorStop(1, 'rgba(20, 184, 166, 0.0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Taxa de SLA (%)',
+                        data: [92.5, 93.1, 91.8, 94.2, 95.5, 96.0, 94.8],
+                        borderColor: '#0d9488', // brand-600
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#0d9488',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4 // Curva suave
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 13, weight: 'normal' },
+                            bodyFont: { size: 14, weight: 'bold' },
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '% no prazo';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 85,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) { return value + '%' }
+                            },
+                            border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            border: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Inicializar Gráfico de Volume por Região (Bar Chart)
+        function initRegionChart() {
+            const ctx = document.getElementById('regionChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sudeste', 'Sul', 'Nordeste', 'C. Oeste', 'Norte'],
+                    datasets: [{
+                        label: 'Volume de Entregas',
+                        data: [6250, 3100, 1850, 950, 300],
+                        backgroundColor: [
+                            '#0d9488', // brand-600
+                            '#14b8a6', // brand-500
+                            '#2dd4bf', // brand-400
+                            '#5eead4', // brand-300
+                            '#99f6e4'  // brand-200
+                        ],
+                        borderRadius: 6,
+                        barThickness: 32
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            border: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Executar funções quando o documento estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTable();
+            initSLAChart();
+            initRegionChart();
+        });
+    </script>
+</body>
+</html>
